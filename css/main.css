@@ -1,0 +1,54 @@
+.board {
+    margin: 0 auto;
+}
+
+td, tr {
+    font-size: 25px;
+    width: 60px;
+    height: 90px;
+    border: 4px ridge #000;
+    text-align: center;
+}
+
+/* Not open */
+.blank {
+    background-color:#a7bcb9;
+}
+
+/* Open cell */
+.open {
+    background-color: #596e79;
+}
+
+table { 
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+/* class to hide stuff */
+.hide {
+    display: none;
+}
+
+img {
+    height: 45px;
+    width: 60px;
+}
+
+/* Footer stuff */
+footer {
+    border: 2px groove #000;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:2em;
+    font-size: 20px;
+    width: 300px;
+    background-color: grey;
+    color: black;
+    
+  }
+  
+  a {
+    color: black;
+    text-decoration: none;
+  }
