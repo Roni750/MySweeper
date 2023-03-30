@@ -11,7 +11,28 @@
 
 <body onload="onInit()"></body>
 <div class="game-container">
-    <div class="modal"></div>
+    <div class="game-header">
+        <div class="heading" title="That's a Carlsberg reference dummy">MySweeper- Probably the best Mine Sweeper in the
+            world.</div>
+        <div class="restart" onclick="onInit()">🙂</div>
+        <div class="difficulty" onclick="openGuide()">
+            <label>
+                <input type="radio" name="difficulty" id="easy" onclick="setDifficulty()">
+                Easy
+            </label>
+            <label>
+                <input type="radio" name="difficulty" id="medium" onclick="setDifficulty()">
+                Medium
+            </label>
+            <label>
+                <input type="radio" name="difficulty" id="hard" onclick="setDifficulty()">
+                Hard
+            </label>
+            <p class="guide hideText">To change the difficulty, please select a difficulty and click on the emoji</p>
+        </div>
+        <div class="lives"></div>
+        <div class="timer">Timer:</div>
+    </div>
     <table>
         <tbody class="board">
         </tbody>
@@ -20,9 +41,11 @@
 <script src="js/utils.js"></script>
 <script src="js/main.js"></script>
 <footer>
-    <a href="https://www.flaticon.com/free-icons/tnt" title="tnt icons">
+    <p>Built by Roni Yerushalmi - <br>Coding Academy | March 2023 course</p>
+    <!-- <a href="https://www.flaticon.com/free-icons/tnt" title="tnt icons">
         Tnt icons created by shmai - Flaticon
-    </a>
+    </a> -->
 </footer>
 </body>
+
 </html>

@@ -12,12 +12,31 @@ function buildBoard() {
                 isMarked: false,
                 location: { i, j }
             }
+
         }
     }
 
     // Place fixed mines
-    board[1][2].isMine = true
-    board[3][1].isMine = true
+    // board[1][2].isMine = true
+    // board[3][1].isMine = true
+    // board[5][4].isMine = true
+    // * Uncomment this to randomize mines
+    for (var i = 0; i < gLevel.MINES; i++) {
+        generateMine(board, gLevel.SIZE)
+    }
+    return board
+}
+
+function generateMine(board, iterateBy) {
+    var randI = getRandomIntInclusive(0, iterateBy - 1)
+    var randJ = getRandomIntInclusive(0, iterateBy - 1)
+    var randLocation = {
+        i: randI,
+        j: randJ
+    }
+    var cell = board[randLocation.i][randLocation.j]
+    // console.log(cell)
+    cell.isMine = true
     return board
 }
 
@@ -29,13 +48,20 @@ function renderBoard(board, selector) {
         for (var j = 0; j < board[0].length; j++) {
             const cell = board[i][j]
             const className = (cell.isMine) ? `blank mine cell-${i}-${j}` : `blank cell-${i}-${j}`
-            var isMine = (cell.isMine) ? MINE_IMG : cell.minesAroundCount
-            strHTML += `<td onclick="onCellClicked(this)" class="${className}"><p>${isMine}</p></td>`
+            var mineCount = (cell.isMine) ? MINE_IMG : cell.minesAroundCount
+            strHTML += `<td onclick="onCellClicked(this)" class="${className}"
+            oncontextmenu="onRightClick(this)" data-set="${cell.minesAroundCount}"><p>
+                ${mineCount}
+            </p>
+            </td>`
         }
         strHTML += '</tr>'
     }
     strHTML += '</tbody></table>'
 
+    // ! Later on implement this line: 
+    /*    strHTML += `<td onclick="onCellClicked(this)" class="${className}">
+    <p data-set="${cell.minesAroundCount}"></p> */
     const elContainer = document.querySelector(selector)
     elContainer.innerHTML = strHTML
 }
@@ -69,12 +95,6 @@ function renderCell(location, value) {
     elCell.innerHTML = value
 }
 
-function renderCherry(location, value) {
-    // Select the elCell and set the value
-    const elCell = document.querySelector(`.cell-${location.i}-${location.j}`)
-    elCell.innerHTML = value
-}
-
 function showElement(elem, elem2, msg) {
     var elShowModal = document.querySelector(elem)
     elShowModal.querySelector(elem2).innerText = msg
@@ -87,32 +107,32 @@ function hideElement(elem) {
 }
 
 function getRandomIntInclusive(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+    min = Math.ceil(min)
+    max = Math.floor(max)
+    return Math.floor(Math.random() * (max - min + 1) + min) // The maximum is inclusive and the minimum is inclusive
 }
 
 function findEmptyCells(board) {
-    const emptyCells = [];
+    const emptyCells = []
 
     for (var i = 0; i < board.length; i++) {
         for (var j = 0; j < board[i].length; j++) {
             if (board[i][j] === ' ') {
-                emptyCells.push({ i, j });
+                emptyCells.push({ i, j })
             }
         }
     }
-    return emptyCells;
+    return emptyCells
 }
 
 function getLocationFromClass(element) {
     const classString = element.className;
-    const match = classString.match(/cell-(\d+)-(\d+)/);
+    const match = classString.match(/cell-(\d+)-(\d+)/)
     if (!match) {
-        return null;
+        return null
     }
-    const [_, i, j] = match;
-    return { i: parseInt(i), j: parseInt(j) };
+    const [_, i, j] = match
+    return { i: parseInt(i), j: parseInt(j) }
 }
 
 function hideNums() {
@@ -130,3 +150,62 @@ function showNums(currCell) {
         num.classList.remove('hide')
     }
 }
+
+function blockContextDisplay() {
+    window.addEventListener('contextmenu', function (e) {
+        e.preventDefault()
+    }, false)
+}
+
+function playerDead() {
+    var emoji = document.querySelector('.restart')
+    emoji.innerText = '🤯'
+}
+
+// This is bad practice- I'm aware.
+// I'm using it in both startTimer & pauseTimer, so I kinda had to
+var timer
+
+function startTimer() {
+    var elTimer = document.querySelector('.timer'); // ! Function from the internet, oddly taking down this ';' mark kills the board for some reason.
+
+    (function () {
+        var sec = 0;
+        timer = setInterval(() => {
+            elTimer.innerText = 'Timer: ' + sec
+            sec++
+        }, 1000) // each 1 second
+    })()
+}
+
+function pauseTimer() {
+    clearInterval(timer);
+}
+
+function openGuide() {
+    const elP = document.querySelector('.guide')
+    elP.classList.remove('hideText')
+    elP.innerText = "To change the difficulty, please select a difficulty and click on the emoji"
+}
+
+function closeGuide() {
+    const elP = document.querySelector('.guide')
+    elP.classList.add('hideText')
+    elP.innerText = "To change the difficulty, please select a difficulty and click on the emoji"
+}
+
+function handleLife() {
+    var elLives = document.querySelector('.lives')
+    elLives.innerText = '❤️❤️❤️'
+  }
+  
+  function killLife() {
+    var elLives = document.querySelector('.lives')
+    if (gGame.lives === 2) {
+      elLives.innerText = '❤️❤️'
+    } else if (gGame.lives === 1) {
+      elLives.innerText = '❤️'
+    } if (gGame.lives === 0) {
+      elLives.innerText = ''
+    }
+  }
