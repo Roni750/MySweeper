@@ -1,5 +1,6 @@
 'use strict'
-
+// TODO: Implement audio features for mine detonation and victory, also implement
+// TODO: An audio mute button 
 // * global scope
 
 var gLevel = {
@@ -33,46 +34,25 @@ var MINE_IMG = `<img src="img/explosives.png">`
 
 
 function onInit() {
-  setDifficulty()
-  startTimer()
+  resetEmoji()
   gBoard = buildBoard()
+  startTimer()
   renderBoard(gBoard, `.board`)
   // hideNums()
   closeGuide()
   handleLife()
 }
 
-function setDifficulty() {
-  pauseTimer()
-  var easyRadio = document.getElementById('easy')
-  var mediumRadio = document.getElementById('medium')
-  var hardRadio = document.getElementById('hard')
-  if (easyRadio.checked) {
-    gLevel.SIZE = 4
-    gLevel.MINES = 2
-  } else if (mediumRadio.checked) {
-    gLevel.SIZE = 8
-    gLevel.MINES = 14
-  } else if (hardRadio.checked) {
-    gLevel.SIZE = 12
-    gLevel.MINES = 32
-  }
-  return
-}
-
 function onCellClicked(elCell, i, j) {
-
+  var elCellLoc = getLocationFromClass(elCell)
+  if (gBoard[elCellLoc.i][elCellLoc.j].isMarked) return false
   gGame.shownCount++ // Increment the count property for opened cells 
   // Set the game mode to ON
   gGame.isOn = true
-  // Disallow flagged cells to be opened
-  // ! if (gBoard[elCellLoc.i][elCellLoc.j].isMarked) return THIS CAUSED ME SO MUCH TROUBLES,
-  // ! Will implement itproperly  on the next patch
-
+  
   elCell.classList.remove('blank')
   elCell.classList.add('open')
-  var elCellLoc = getLocationFromClass(elCell)
-
+  
   // Expand the selection to neighboor cells
   expandShown(gBoard, elCell, elCellLoc.i, elCellLoc.j)
   var cell = gBoard[elCellLoc.i][elCellLoc.j]
@@ -84,12 +64,29 @@ function onCellClicked(elCell, i, j) {
   if (cell.isMine) {
     gGame.lives--
     gGame.detonatedMineCount++
+    console.log("gGame.detonatedMineCount", gGame.detonatedMineCount)
     killLife() // Visually renders the amount of lives left
     console.log("You have", gGame.lives, "lives left") // testing
+    
+    // Lose scenario
     if (gGame.lives === 0) {
-      // Lose scenario
-      gGame.isOn = false
+      // Expose all MINES
+      showAllMines()
       checkGameOver()
+      gGame.isOn = false
+    }
+  }
+}
+
+function showAllMines() {
+  for (var i = 0; i < gLevel.SIZE; i++) {
+    for (var j = 0; j < gLevel.SIZE; j++) {
+      if (gBoard[i][j].isMine) {
+        var elCell = document.querySelector(`.cell-${i}-${j}`)
+        elCell.classList.remove('blank')
+        elCell.classList.add('open')
+        // console.log(elCell)
+      }
     }
   }
 }
@@ -182,6 +179,7 @@ function onRightClick(elCell) {
 
   // Disallow context-menu to pop up, regardless of the functionality above
   blockContextDisplay()
+  gRightClick = !gRightClick
 }
 
 function countMarkedMines() {

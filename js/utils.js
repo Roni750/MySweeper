@@ -1,6 +1,7 @@
 'use strict'
 
 function buildBoard() {
+    setDifficulty()
     const board = []
     for (var i = 0; i < gLevel.SIZE; i++) {
         board[i] = []
@@ -20,11 +21,29 @@ function buildBoard() {
     // board[1][2].isMine = true
     // board[3][1].isMine = true
     // board[5][4].isMine = true
-    // * Uncomment this to randomize mines
     for (var i = 0; i < gLevel.MINES; i++) {
         generateMine(board, gLevel.SIZE)
     }
     return board
+}
+
+function setDifficulty() {
+    pauseTimer()
+    const easy = document.getElementById('easy')
+    const medium = document.getElementById('medium')
+    const hard = document.getElementById('hard')
+    if (easy.checked) {
+        gLevel.SIZE = 4
+        gLevel.MINES = 2
+        gGame.lives = 2
+    } else if (medium.checked) {
+        gLevel.SIZE = 8
+        gLevel.MINES = 12
+    } else if (hard.checked) {
+        gLevel.SIZE = 12
+        gLevel.mines = 32
+    }
+    // startTimer()
 }
 
 function generateMine(board, iterateBy) {
@@ -35,7 +54,6 @@ function generateMine(board, iterateBy) {
         j: randJ
     }
     var cell = board[randLocation.i][randLocation.j]
-    // console.log(cell)
     cell.isMine = true
     return board
 }
@@ -59,9 +77,6 @@ function renderBoard(board, selector) {
     }
     strHTML += '</tbody></table>'
 
-    // ! Later on implement this line: 
-    /*    strHTML += `<td onclick="onCellClicked(this)" class="${className}">
-    <p data-set="${cell.minesAroundCount}"></p> */
     const elContainer = document.querySelector(selector)
     elContainer.innerHTML = strHTML
 }
@@ -160,6 +175,12 @@ function blockContextDisplay() {
 function playerDead() {
     var emoji = document.querySelector('.restart')
     emoji.innerText = '🤯'
+    pauseTimer()
+}
+
+function resetEmoji() {
+    var emoji = document.querySelector('.restart')
+    emoji.innerText = '🙂'
 }
 
 // This is bad practice- I'm aware.
@@ -169,13 +190,11 @@ var timer
 function startTimer() {
     var elTimer = document.querySelector('.timer'); // ! Function from the internet, oddly taking down this ';' mark kills the board for some reason.
 
-    (function () {
-        var sec = 0;
-        timer = setInterval(() => {
-            elTimer.innerText = 'Timer: ' + sec
-            sec++
-        }, 1000) // each 1 second
-    })()
+    var sec = 0;
+    timer = setInterval(() => {
+        elTimer.innerText = 'Timer: ' + sec
+        sec++
+    }, 1000) // each 1 second
 }
 
 function pauseTimer() {
@@ -197,15 +216,15 @@ function closeGuide() {
 function handleLife() {
     var elLives = document.querySelector('.lives')
     elLives.innerText = '❤️❤️❤️'
-  }
-  
-  function killLife() {
+}
+
+function killLife() {
     var elLives = document.querySelector('.lives')
     if (gGame.lives === 2) {
-      elLives.innerText = '❤️❤️'
+        elLives.innerText = '❤️❤️'
     } else if (gGame.lives === 1) {
-      elLives.innerText = '❤️'
+        elLives.innerText = '❤️'
     } if (gGame.lives === 0) {
-      elLives.innerText = ''
+        elLives.innerText = ''
     }
-  }
+}
