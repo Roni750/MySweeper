@@ -72,30 +72,46 @@ table {
 
 td,
 tr {
-    font-size: 25px;
-    width: 60px;
-    height: 90px;
+    font-size: 20px;
+    width: 30px;
+    height: 45px;
     border: 4px ridge #000;
     text-align: center;
 }
 
+/* changes the default configuration for <p> elements
+as they have a default padding attribute and we don't want that */
+p {
+    margin: 0;
+    padding: 0;
+} 
+
 /* Closed cell */
 .blank {
+    width: 30px;
+    height: 45px;
     background-color: #A3A3A3;
-}
-
-.flagged {
-    background-color: #A3A3A3;
-}
-
-/* this definition hides the content under the cells (numbers & mines) */
-.blank p {
-    display: none;
 }
 
 /* Open cell */
 .open {
+    width: 30px;
+    height: 45px;
     background-color: #686868;
+}
+
+.flagged {
+    background-color: #A3A3A3;
+    /* background-color: darkred; */
+}
+
+/* ! this definition hides the content under the cells (numbers & mines) */
+.blank > p {
+    display: none;
+}
+
+.flagged > p {
+    display: none;
 }
 
 /* Define different colors to each designated "minesAroundCount" property */
@@ -118,7 +134,7 @@ tr {
     color: darkblue;
 }
 
-[data-set="0"] {
+[data-set="-1"] > p {
     font-size: 0px;
 }
 
@@ -126,16 +142,10 @@ tr {
     font-size: 0px;
 }
 
-table {
-    border-spacing: 0;
-    border-collapse: collapse;
-    margin: auto;
-}
-
 /* Mainly for the BOMB img */ 
 img {
     height: 30px;
-    width: 35px;
+    width: 30px;
 }
 
 footer {

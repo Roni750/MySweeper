@@ -21,10 +21,28 @@ function buildBoard() {
     // board[1][2].isMine = true
     // board[3][1].isMine = true
     // board[5][4].isMine = true
-    for (var i = 0; i < gLevel.MINES; i++) {
-        generateMine(board, gLevel.SIZE)
+    
+    // Generate Mines
+    var mineLocations = {}
+    var numOfMines = 0
+    
+    while (numOfMines < gLevel.MINES) {
+        var randI = getRandomIntInclusive(0, gLevel.SIZE - 1)
+        var randJ = getRandomIntInclusive(0, gLevel.SIZE - 1)
+        var cell = board[randI][randJ]
+        var location = randI + '-' + randJ
+    
+        if (!mineLocations[location]) {
+            cell.isMine = true
+            mineLocations[location] = true
+            numOfMines++
+        }
     }
     return board
+}
+
+function shuffle(array) {
+    array.sort(() => Math.random() - 0.5);
 }
 
 function setDifficulty() {
@@ -36,26 +54,16 @@ function setDifficulty() {
         gLevel.SIZE = 4
         gLevel.MINES = 2
         gGame.lives = 2
+        gGame.totalCellCounter = 4 * 4
     } else if (medium.checked) {
         gLevel.SIZE = 8
-        gLevel.MINES = 12
+        gLevel.MINES = 14
+        gGame.totalCellCounter = 8 * 8
     } else if (hard.checked) {
         gLevel.SIZE = 12
-        gLevel.mines = 32
+        gLevel.MINES = 32
+        gGame.totalCellCounter = 12 * 12
     }
-    // startTimer()
-}
-
-function generateMine(board, iterateBy) {
-    var randI = getRandomIntInclusive(0, iterateBy - 1)
-    var randJ = getRandomIntInclusive(0, iterateBy - 1)
-    var randLocation = {
-        i: randI,
-        j: randJ
-    }
-    var cell = board[randLocation.i][randLocation.j]
-    cell.isMine = true
-    return board
 }
 
 function renderBoard(board, selector) {
@@ -67,8 +75,10 @@ function renderBoard(board, selector) {
             const cell = board[i][j]
             const className = (cell.isMine) ? `blank mine cell-${i}-${j}` : `blank cell-${i}-${j}`
             var mineCount = (cell.isMine) ? MINE_IMG : cell.minesAroundCount
+            // If minesAroundCount less than 1, hide the 0 digit
+            var dangerPriority = (cell.minesAroundCount > 0) ? cell.minesAroundCount : -1
             strHTML += `<td onclick="onCellClicked(this)" class="${className}"
-            oncontextmenu="onRightClick(this)" data-set="${cell.minesAroundCount}"><p>
+            oncontextmenu="onRightClick(this)" data-set="${dangerPriority}"><p>
                 ${mineCount}
             </p>
             </td>`
@@ -188,7 +198,8 @@ function resetEmoji() {
 var timer
 
 function startTimer() {
-    var elTimer = document.querySelector('.timer'); // ! Function from the internet, oddly taking down this ';' mark kills the board for some reason.
+    var elTimer = document.querySelector('.timer')
+    // Oddly taking down this ';' mark kills the board for some reason.
 
     var sec = 0;
     timer = setInterval(() => {
@@ -215,7 +226,10 @@ function closeGuide() {
 
 function handleLife() {
     var elLives = document.querySelector('.lives')
-    elLives.innerText = '❤️❤️❤️'
+    if (gLevel.SIZE === 4) {
+        elLives.innerText = '❤️❤️'
+    } else elLives.innerText = '❤️❤️❤️'
+
 }
 
 function killLife() {
@@ -227,4 +241,19 @@ function killLife() {
     } if (gGame.lives === 0) {
         elLives.innerText = ''
     }
+}
+
+function resetAllStats() {
+    gGame.lives = 3
+    gGame.shownCount = 0
+    gGame.markedCount = 0
+    gGame.detonatedMineCount = 0
+    gGame.flaggedMine = 0
+    // Allows the player to mark mines after passing different difficulties 
+    gRightClick = false
+    // Resets the steps count to 0, to help with timer-reset & identify how many steps made in a game
+    gSteps = 0
+    const elTimer = document.querySelector('.timer')
+    elTimer.innerText = "Timer: 0"
+    // TODO: Implement later on gGame.secsPassed
 }
