@@ -64,6 +64,10 @@ table {
     cursor: cell;
 }
 
+p {
+    text-shadow: 0px 0px 5px #969696;
+}
+
 .game-container {
     text-align: center;
     display: table;
@@ -84,7 +88,7 @@ as they have a default padding attribute and we don't want that */
 p {
     margin: 0;
     padding: 0;
-} 
+}
 
 /* Closed cell */
 .blank {
@@ -106,11 +110,11 @@ p {
 }
 
 /* ! this definition hides the content under the cells (numbers & mines) */
-.blank > p {
+.blank>p {
     display: none;
 }
 
-.flagged > p {
+.flagged>p {
     display: none;
 }
 
@@ -118,6 +122,7 @@ p {
 [data-set="5"] {
     color: darkmagenta;
 }
+
 [data-set="4"] {
     color: darkred;
 }
@@ -134,7 +139,7 @@ p {
     color: darkblue;
 }
 
-[data-set="-1"] > p {
+[data-set="-1"]>p {
     font-size: 0px;
 }
 
@@ -142,10 +147,16 @@ p {
     font-size: 0px;
 }
 
-/* Mainly for the BOMB img */ 
+/* BOMB img configuration */
 img {
     height: 30px;
     width: 30px;
+}
+
+.results {
+    text-align: center;
+    margin: 0 auto;
+    text-shadow: 0px 0px 10px #A9A9A9, 5px 0px 10px #075607;
 }
 
 footer {
@@ -159,3 +170,28 @@ footer {
     color: black;
     text-align: center;
 }
+
+.modal-container {
+    position: fixed;
+    background-color: #fff;
+    width: 70%;
+    max-width: 400px;
+    left: 50%;
+    padding: 20px;
+    border-radius: 5px;
+    -webkit-transform: translate(-50%, -200%);
+    -ms-transform: translate(-50%, -200%);
+    transform: translate(-50%, -200%);
+    -webkit-transition: -webkit-transform 200ms ease-out;
+    transition: transform 200ms ease-out;
+}
+
+/* hide modal */
+.hide {
+    display: none;
+}
+
+/* Uncomment for tests */
+/* .mine {
+    background-color: red;
+}  */

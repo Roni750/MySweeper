@@ -1,5 +1,5 @@
 'use strict'
-// TODO: Implement audio features for mine detonation and victory, also implement
+// TODO: Implement audio sounds for mine detonation and victory, also implement
 // TODO: An audio mute button 
 // * global scope
 
@@ -11,6 +11,8 @@ var gLevel = {
 }
 
 // * DATA
+var BEST_SCORE = 999
+
 var MINE = "MINE"
 var CELL = "CELL"
 var gRightClick = false
@@ -35,10 +37,8 @@ const gFlagString = '<span>🚩</span>'
 function onInit() {
   resetAllStats()
   handleLife()
-  resetEmoji()
   gBoard = buildBoard()
   renderBoard(gBoard, `.board`)
-  // hideNums()
   closeGuide()
 }
 
@@ -66,20 +66,20 @@ function onCellClicked(elCell) {
   // Expand the selection to neighboor cells
   expandShown(gBoard, elCell, elCellLoc.i, elCellLoc.j)
 
-  
+
   // Upon detonating a mine - one life lost each time
   if (cell.isMine) {
     gGame.lives--
     gGame.detonatedMineCount++
-    console.log("gGame.detonatedMineCount", gGame.detonatedMineCount)
+    // console.log("gGame.detonatedMineCount", gGame.detonatedMineCount)
     killLife() // Visually renders the amount of lives left
-    console.log("You have", gGame.lives, "lives left") // testing
-    
+    // console.log("You have", gGame.lives, "lives left") // testing
+
     // Lose scenario
     if (gGame.lives === 0) {
       // Expose all MINES
       showAllMines()
-      checkGameOver()
+      playerDead()
       gGame.isOn = false
     }
   }
@@ -133,49 +133,7 @@ function expandShown(board, elCell, row, col) {
   }
 }
 
-// function expandShown(board, elCell, row, col) {
-//   // If the clicked cell contains a mine, return without opening any neighboor cells
-//   if (board[row][col].isMine || board[row][col].isShown || board[row][col].isMarked) return
-
-//   // Open the clicked cell
-//   elCell.classList.remove('blank')
-//   elCell.classList.add('open')
-
-//   // If the clicked cell has no mines in the neighboorhood, start scanning with the loop for legit negs
-//   if (board[row][col].minesAroundCount === 0) {
-//     for (var i = row - 1; i <= row + 1; i++) {
-//       for (var j = col - 1; j <= col + 1; j++) {
-//         // Handle edges of the board
-//         if (i < 0 || j < 0 || i >= board.length || j >= board[0].length) continue
-//         var neighborCell = board[i][j]
-//         var neighborElCell = document.querySelector(`.cell-${i}-${j}`)
-//         // If the neighbor cell is already opened or contains a mine/ flag, skip it
-//         if (neighborElCell.classList.contains('open') || neighborCell.isMine || neighborCell.isMarked) continue
-//         // Otherwise, open the neighbor cell and recursively open its neighbors
-//         // Set the isShown definition to true, for each cell opened
-//         // neighborCell.isShown = true
-//         gGame.shownCount++
-//         neighborElCell.classList.remove('blank')
-//         neighborElCell.classList.add('open')
-//         expandShown(board, neighborElCell, i, j)
-//       }
-//     }
-//   }
-// }
-
-function checkGameOver() {
-  // Game ends when all mines are marked, and all the other cells are shown
-  if (gGame.lives === 0) {
-    console.log("Sorry, you're dead.")
-    playerDead()
-  } else {
-    console.log("Nicely done!")
-  }
-}
-
 function placeFlag(elCell, i, j) {
-  console.log("placeFlag was called!")
-
   // Remove '.blank' css properties, add '.flagged' properties instead
   elCell.classList.remove('blank')
   elCell.classList.add('flagged')
@@ -184,7 +142,6 @@ function placeFlag(elCell, i, j) {
   gBoard[i][j].isMarked = true
   // Increment the markedCount, to identify WIN scenario
   gGame.markedCount++
-
   // Validate if it really is a mine underneath 
   if (gBoard[i][j].isMine) {
     gGame.flaggedMine++
@@ -199,7 +156,7 @@ function removeFlag(elCell, i, j) {
   gBoard[i][j].isMarked = false
   // Reverse all actions done, to unmark the cell
   var elSpan = elCell.querySelector('span')
-  console.log("removeFlag was called!")
+  // console.log("removeFlag was called!")
   elCell.classList.add('blank')
   elCell.classList.remove('flagged')
 
@@ -207,13 +164,9 @@ function removeFlag(elCell, i, j) {
   // display the bomb underneath
   if (gBoard[i][j].isMine) {
     elSpan.remove()
-    // elSpan.innerHTML = MINE_IMG
   } else {
     // Retrieve the relevant "minesAroundCount" hidden underneath
     elSpan.remove()
-    // elSpan.innerHTML = gBoard[i][j].minesAroundCount
-    // elCell.removeChild('span')
-    // elSpan.innerHTML -= flagString
   }
   return
 }
@@ -236,14 +189,14 @@ function onRightClick(elCell) {
   if (gGame.shownCount > (gGame.totalCellCounter / 2)) {
     checkWin()
   }
-  
+
   // Disallow context-menu to pop up, regardless of the functionality above
   blockContextDisplay()
 }
 
 function checkWin() {
   var markedMinesCount = countMarkedMines()
-  console.log("markedMinesCount", markedMinesCount)
+  // console.log("markedMinesCount", markedMinesCount)
   if (markedMinesCount >= (gLevel.MINES - gGame.detonatedMineCount)) {
     if (gGame.shownCount >= gGame.totalCellCounter && gGame.lives > 0) {
       handleWin()
@@ -264,10 +217,38 @@ function countMarkedMines() {
 }
 
 function handleWin() {
-  console.log("handleWin FUNC activated")
-  var timeRecord = document.querySelector('.timer').innerText
-  console.log(`Congrats, you won at ${timeRecord}!`)
+  var timeRecord = document.getElementById('1')
   var emoji = document.querySelector('.restart')
   emoji.innerText = '😎'
   pauseTimer()
+  var msg = `Congrats! You won after ${timeRecord.innerText} seconds.\t
+  Would you like to save your record?`
+  var timeRecordInt = parseInt(timeRecord.innerText)
+  gGame.secsPassed = timeRecordInt
+  // If it's a best new score, pop up a modal and assign it.
+  if (timeRecordInt < BEST_SCORE) {
+    BEST_SCORE = timeRecordInt
+    showElement('.modal-container', 'p', msg)
+  }
+}
+
+function setRecord() {
+  var key = "Highest Score"
+  var playerName = prompt("Please enter your name:")
+  var bestScore = {
+    mines: gLevel.MINES,
+    name: playerName,
+    seconds: gGame.secsPassed
+  }
+  // Check browser support
+  if (typeof (Storage) !== "undefined") {
+    // Store the data
+    localStorage.setItem(key, bestScore);
+    // Retrieve it & output the values
+    var scoreTable = document.getElementById("score-table")
+    scoreTable.innerHTML = `Mines: ${bestScore.mines} | Name: ${playerName} | Seconds: ${gGame.secsPassed}`
+  } else {
+    document.getElementById("result").innerHTML = "Seems like your browser does not support Web Storage.";
+  }
+  hideElement('.modal-container')
 }

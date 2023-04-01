@@ -18,8 +18,8 @@ function buildBoard() {
     }
 
     // Place fixed mines
-    // board[1][2].isMine = true
-    // board[3][1].isMine = true
+    // board[0][1].isMine = true
+    // board[1][1].isMine = true
     // board[5][4].isMine = true
     
     // Generate Mines
@@ -39,10 +39,6 @@ function buildBoard() {
         }
     }
     return board
-}
-
-function shuffle(array) {
-    array.sort(() => Math.random() - 0.5);
 }
 
 function setDifficulty() {
@@ -75,7 +71,7 @@ function renderBoard(board, selector) {
             const cell = board[i][j]
             const className = (cell.isMine) ? `blank mine cell-${i}-${j}` : `blank cell-${i}-${j}`
             var mineCount = (cell.isMine) ? MINE_IMG : cell.minesAroundCount
-            // If minesAroundCount less than 1, hide the 0 digit
+            // If minesAroundCount less than 1, hide the 0 digit (data-set"-1" font-size: 0px on main.css)
             var dangerPriority = (cell.minesAroundCount > 0) ? cell.minesAroundCount : -1
             strHTML += `<td onclick="onCellClicked(this)" class="${className}"
             oncontextmenu="onRightClick(this)" data-set="${dangerPriority}"><p>
@@ -195,21 +191,21 @@ function resetEmoji() {
 
 // This is bad practice- I'm aware.
 // I'm using it in both startTimer & pauseTimer, so I kinda had to
-var timer
+var gTimer
 
 function startTimer() {
     var elTimer = document.querySelector('.timer')
     // Oddly taking down this ';' mark kills the board for some reason.
 
     var sec = 0;
-    timer = setInterval(() => {
-        elTimer.innerText = 'Timer: ' + sec
+    gTimer = setInterval(() => {
+        elTimer.innerHTML = `Timer: <span id="1">${sec}</span>`
         sec++
     }, 1000) // each 1 second
 }
 
 function pauseTimer() {
-    clearInterval(timer);
+    clearInterval(gTimer);
 }
 
 function openGuide() {
@@ -229,7 +225,6 @@ function handleLife() {
     if (gLevel.SIZE === 4) {
         elLives.innerText = '❤️❤️'
     } else elLives.innerText = '❤️❤️❤️'
-
 }
 
 function killLife() {
@@ -244,11 +239,14 @@ function killLife() {
 }
 
 function resetAllStats() {
+    resetEmoji()
     gGame.lives = 3
     gGame.shownCount = 0
+    // gGame.goal = gGame.totalCellCounter - countMarkedMines()
     gGame.markedCount = 0
     gGame.detonatedMineCount = 0
     gGame.flaggedMine = 0
+    gGame.secsPassed = 0
     // Allows the player to mark mines after passing different difficulties 
     gRightClick = false
     // Resets the steps count to 0, to help with timer-reset & identify how many steps made in a game
